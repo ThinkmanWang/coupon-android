@@ -4,6 +4,7 @@ import android.Manifest;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.webkit.WebSettings;
 
 import com.tbruyelle.rxpermissions2.RxPermissions;
 import com.tencent.smtt.sdk.WebChromeClient;
@@ -60,6 +61,7 @@ public class MainActivity extends AppCompatActivity {
         m_wvMain.getSettings().setBlockNetworkImage(false);//解决图片不显示
         m_wvMain.getSettings().setLoadsImagesAutomatically(true); //支持自动加载图片
         m_wvMain.getSettings().setDefaultTextEncodingName("utf-8");//设置编码格式
+        m_wvMain.getSettings().setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
 
         String szIMEI = RxDeviceTool.getIMEI(MainActivity.this);
         String szUrl = String.format("https://coupon.shiyculture.com/?user_id=%s&app_key=609d544b98d347a5bcc17637c529b95a&app_secret=609d544b98d347a5bcc17637c529b95a&allow_buy=1", szIMEI);
