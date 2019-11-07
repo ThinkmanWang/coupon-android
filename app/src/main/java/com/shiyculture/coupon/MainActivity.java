@@ -30,6 +30,14 @@ public class MainActivity extends AppCompatActivity {
         initUI();
     }
 
+    public void onBackPressed() {
+        if (m_wvMain.canGoBack()) {
+            m_wvMain.goBack();
+        } else {
+            super.onBackPressed();
+        }
+    }
+
     public void initUI() {
         rxPermissions.request(Manifest.permission.READ_PHONE_STATE
                 , Manifest.permission.WRITE_EXTERNAL_STORAGE
@@ -56,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
         String szIMEI = RxDeviceTool.getIMEI(MainActivity.this);
         String szUrl = String.format("https://coupon.shiyculture.com/?user_id=%s&app_key=609d544b98d347a5bcc17637c529b95a&app_secret=609d544b98d347a5bcc17637c529b95a&allow_buy=1", szIMEI);
 
-        m_wvMain.loadUrl("http://soft.imtt.qq.com/browser/tes/feedback.html");
+        m_wvMain.loadUrl(szUrl);
 
         m_wvMain.setWebViewClient(new WebViewClient() {
 

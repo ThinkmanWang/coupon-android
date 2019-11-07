@@ -9,6 +9,9 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        ndk {
+            abiFilters "armeabi", "armeabi-v7a", "x86", "mips"
+        }
     }
 //    buildTypes {
 //        release {
@@ -58,5 +61,7 @@ dependencies {
     //UI库
     implementation "com.github.vondear.RxTool:RxUI:v2.0.4"
 
-    api 'com.tencent.tbs.tbssdk:sdk:43697'
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+
+//    api 'com.tencent.tbs.tbssdk:sdk:43697'
 }
