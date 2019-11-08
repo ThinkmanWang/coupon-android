@@ -1,16 +1,19 @@
 package com.shiyculture.coupon;
 
 import android.Manifest;
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.webkit.WebSettings;
 
 import com.tbruyelle.rxpermissions2.RxPermissions;
-import com.tencent.smtt.sdk.WebChromeClient;
-import com.tencent.smtt.sdk.WebView;
-import com.tencent.smtt.sdk.WebViewClient;
 import com.vondear.rxtool.RxDeviceTool;
+
+import org.xwalk.core.XWalkNavigationHistory;
+import org.xwalk.core.XWalkResourceClient;
+import org.xwalk.core.XWalkUIClient;
+import org.xwalk.core.XWalkView;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -20,7 +23,7 @@ public class MainActivity extends AppCompatActivity {
     final RxPermissions rxPermissions = new RxPermissions(this);
 
     @BindView(R.id.main_webview)
-    WebView m_wvMain;
+    XWalkView mXwalkView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,8 +35,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onBackPressed() {
-        if (m_wvMain.canGoBack()) {
-            m_wvMain.goBack();
+        if (mXwalkView.getNavigationHistory().canGoBack()) {
+            mXwalkView.getNavigationHistory().navigate(XWalkNavigationHistory.Direction.BACKWARD, 1) ;
         } else {
             super.onBackPressed();
         }
@@ -54,42 +57,56 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void initWebView() {
-        m_wvMain.getSettings().setJavaScriptEnabled(true);
-        m_wvMain.getSettings().setSupportZoom(true); //支持缩放，默认为true。是下面那个的前提。
-        m_wvMain.getSettings().setBuiltInZoomControls(true); //设置内置的缩放控件。若为false，则该WebView不可缩放
-        m_wvMain.getSettings().setDisplayZoomControls(true); //隐藏原生的缩放控件
-        m_wvMain.getSettings().setBlockNetworkImage(false);//解决图片不显示
-        m_wvMain.getSettings().setLoadsImagesAutomatically(true); //支持自动加载图片
-        m_wvMain.getSettings().setDefaultTextEncodingName("utf-8");//设置编码格式
-        m_wvMain.getSettings().setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
+        mXwalkView.setUIClient(new MyUIClient(mXwalkView));
+        mXwalkView.load("https://coupon.shiyculture.com/?app_key=609d544b98d347a5bcc17637c529b95a&app_secret=609d544b98d347a5bcc17637c529b95a&allow_buy=1",null);
+    }
 
-        String szIMEI = RxDeviceTool.getIMEI(MainActivity.this);
-        String szUrl = String.format("https://coupon.shiyculture.com/?user_id=%s&app_key=609d544b98d347a5bcc17637c529b95a&app_secret=609d544b98d347a5bcc17637c529b95a&allow_buy=1", szIMEI);
+    class MyResourceClient extends XWalkResourceClient {
+        MyResourceClient(XWalkView view) {
+            super(view);
+        }
+    }
 
-        m_wvMain.loadUrl(szUrl);
+    class MyUIClient extends XWalkUIClient {
+        MyUIClient(XWalkView view) {
+            super(view);
+        }
+    }
 
-        m_wvMain.setWebViewClient(new WebViewClient() {
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (mXwalkView != null) {
+            mXwalkView.pauseTimers();
+            mXwalkView.onHide();
+        }
+    }
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (mXwalkView != null) {
+            mXwalkView.resumeTimers();
+        }
+    }
 
-            @Override
-            public boolean shouldOverrideUrlLoading(WebView webView, String s) {
-                webView.loadUrl(s);
-                return true;
-            }
-        });
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (mXwalkView != null) {
+            mXwalkView.onDestroy();
+        }
+    }
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (mXwalkView != null) {
+            mXwalkView.onActivityResult(requestCode, resultCode, data);
+        }
+    }
 
-        m_wvMain.setWebChromeClient(new WebChromeClient() {
-            @Override
-            public void onProgressChanged(WebView webView, int i) {
-//                if (i < 100 && MainTaskFragment.this.isVisible()) {
-//                    tvTaskProgress.setVisibility(View.VISIBLE);
-//                    webView.setVisibility(View.GONE);
-//                } else {
-//                    if (MainTaskFragment.this.isVisible()) {
-//                        tvTaskProgress.setVisibility(View.GONE);
-//                        webView.setVisibility(View.VISIBLE);
-//                    }
-//                }
-            }
-        });
+    @Override
+    public void onNewIntent(Intent intent) {
+        if (mXwalkView != null) {
+            mXwalkView.onNewIntent(intent);
+        }
     }
 }
